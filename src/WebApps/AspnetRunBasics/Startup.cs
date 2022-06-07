@@ -1,5 +1,6 @@
 using AspnetRunBasics.Services;
 using Common.Logging;
+using Common.Resilliency;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,13 +25,19 @@ namespace AspnetRunBasics
             services.AddTransient<LoggingDelegatingHandler>();
             services.AddHttpClient<ICatalogService, CatalogService>(c =>
                 c.BaseAddress = new Uri(Configuration["ApiSettings:GatewayAddress"]))
-                .AddHttpMessageHandler<LoggingDelegatingHandler>();
+                .AddHttpMessageHandler<LoggingDelegatingHandler>()
+                .AddPolicyHandler(CommonPolicies.GetRetryPolicy())
+                .AddPolicyHandler(CommonPolicies.GetCircuitBreakerPolicy());
             services.AddHttpClient<IBasketService, BasketService>(c =>
                 c.BaseAddress = new Uri(Configuration["ApiSettings:GatewayAddress"]))
-                .AddHttpMessageHandler<LoggingDelegatingHandler>();
+                .AddHttpMessageHandler<LoggingDelegatingHandler>()
+                .AddPolicyHandler(CommonPolicies.GetRetryPolicy())
+                .AddPolicyHandler(CommonPolicies.GetCircuitBreakerPolicy());
             services.AddHttpClient<IOrderService, OrderService>(c =>
                 c.BaseAddress = new Uri(Configuration["ApiSettings:GatewayAddress"]))
-                .AddHttpMessageHandler<LoggingDelegatingHandler>();
+                .AddHttpMessageHandler<LoggingDelegatingHandler>()
+                .AddPolicyHandler(CommonPolicies.GetRetryPolicy())
+                .AddPolicyHandler(CommonPolicies.GetCircuitBreakerPolicy());
 
             services.AddRazorPages();
         }
